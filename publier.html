@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Publier une Histoire</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff;
+            text-align: center;
+            padding-top: 50px;
+        }
+        h1 {
+            color: #333;
+        }
+        .code-input {
+            margin: 20px 0;
+        }
+        .validate-button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .validate-button:hover {
+            background-color: #0056b3;
+        }
+        .file-upload {
+            display: none; /* Masquer jusqu'à validation du code */
+            margin-top: 20px;
+        }
+        .upload-button {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .upload-button:hover {
+            background-color: #046e1b;
+        }
+        .message {
+            color: red;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Publier une Histoire</h1>
+    
+    <div class="code-input">
+        <label for="admin-code">Entrez le code administratif :</label>
+        <input type="text" id="admin-code" placeholder="Code ici" />
+        <button class="validate-button" onclick="validateCode()">Valider</button>
+    </div>
+
+    <div class="file-upload" id="file-upload">
+        <label for="title-input">Titre de l'histoire :</label>
+        <input type="text" id="title-input" placeholder="Titre ici" />
+        <br>
+        <label for="content-input">Contenu de l'histoire :</label>
+        <textarea id="content-input" placeholder="Écrivez votre histoire ici..." rows="5"></textarea>
+        <br>
+        <label for="file-input">Choisissez un fichier à publier (image, vidéo, document) :</label>
+        <input type="file" id="file-input" accept="image/*,video/*,.pdf,.doc,.docx" />
+        <br>
+        <button class="upload-button" onclick="uploadFile()">Publier</button>
+    </div>
+
+    <div class="message" id="message"></div>
+
+    <script>
+        function validateCode() {
+            const codeInput = document.getElementById("admin-code").value;
+            const validCode = "sam123@@#didier.hist";
+            const messageDiv = document.getElementById("message");
+
+            if (codeInput === validCode) {
+                messageDiv.textContent = ""; // Efface le message d'erreur
+                document.getElementById("file-upload").style.display = "block"; // Affiche le champ de téléchargement
+            } else {
+                messageDiv.textContent = "Code incorrect, veuillez réessayer.";
+                document.getElementById("file-upload").style.display = "none"; // Masque le champ de téléchargement
+            }
+        }
+
+        function uploadFile() {
+            const titleInput = document.getElementById("title-input").value;
+            const contentInput = document.getElementById("content-input").value;
+            const fileInput = document.getElementById("file-input").files[0];
+            const messageDiv = document.getElementById("message");
+
+            if (!titleInput || (!contentInput && !fileInput)) {
+                alert("Veuillez remplir le titre et fournir un contenu ou un fichier.");
+                return;
+            }
+
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                const fileUrl = e.target.result; // Obtenir l'URL du fichier
+                // Stocker l'histoire dans le localStorage
+                let stories = JSON.parse(localStorage.getItem("stories")) || [];
+                stories.push({
+                    title: titleInput,
+                    content: contentInput,
+                    file: fileUrl,
+                    fileType: fileInput ? fileInput.type : null // Stocker le type de fichier
+                });
+                localStorage.setItem("stories", JSON.stringify(stories));
+
+                alert("Histoire publiée avec succès !");
+                window.location.href = "histoires_amour.html"; // Redirection vers la page d'histoires d'amour
+            };
+
+            if (fileInput) {
+                reader.readAsDataURL(fileInput); // Convertir le fichier en URL
+            } else {
+                // Pas de fichier, on procède avec juste l'histoire
+                let stories = JSON.parse(localStorage.getItem("stories")) || [];
+                stories.push({
+                    title: titleInput,
+                    content: contentInput,
+                    file: null,
+                    fileType: null
+                });
+                localStorage.setItem("stories", JSON.stringify(stories));
+                alert("Histoire publiée avec succès !");
+                window.location.href = "histoires_amour.html";
+            }
+        }
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conseils Pratiques</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        .story {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .story-title {
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .story-content {
+            display: none; /* Cacher le contenu au début */
+            margin-top: 5px;
+        }
+        .story-file {
+            margin-top: 10px;
+        }
+        .see-more, .delete-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 5px; /* Espacement entre les boutons */
+        }
+        .see-more:hover, .delete-btn:hover {
+            background-color: #0056b3;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            padding: 15px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+            width: 250px;
+            text-align: center;
+        }
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 14px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Conseils Pratiques</h1>
+    <div id="stories-container"></div>
+
+    <button onclick="window.location.href='publier.html'">Publier</button>
+
+    <div class="footer">Construit par votre expert Samo</div>
+
+    <script>
+        function loadStories() {
+            const stories = JSON.parse(localStorage.getItem("conseils_stories")) || []; // Changer le nom pour les conseils
+            const storiesContainer = document.getElementById("stories-container");
+
+            if (stories.length === 0) {
+                storiesContainer.innerHTML = "<p>Aucun conseil publié pour le moment.</p>";
+                return;
+            }
+
+            storiesContainer.innerHTML = ""; // Réinitialiser le conteneur
+
+            stories.forEach((story, index) => {
+                const storyDiv = document.createElement("div");
+                storyDiv.classList.add("story");
+
+                const title = document.createElement("div");
+                title.classList.add("story-title");
+                title.textContent = story.title;
+
+                const content = document.createElement("div");
+                content.classList.add("story-content");
+                content.textContent = story.content;
+
+                const seeMoreButton = document.createElement("button");
+                seeMoreButton.classList.add("see-more");
+                seeMoreButton.textContent = "Voir plus";
+                seeMoreButton.onclick = function() {
+                    content.style.display = content.style.display === "none" ? "block" : "none"; // Afficher ou masquer le contenu
+                };
+
+                const deleteButton = document.createElement("button");
+                deleteButton.classList.add("delete-btn");
+                deleteButton.textContent = "Supprimer";
+                deleteButton.onclick = function() {
+                    deleteStory(index);
+                };
+
+                storyDiv.appendChild(title);
+                storyDiv.appendChild(seeMoreButton);
+                storyDiv.appendChild(content);
+                storyDiv.appendChild(deleteButton); // Ajouter le bouton de suppression
+
+                // Gérer l'affichage des fichiers
+                if (story.file) {
+                    const fileElement = document.createElement("div");
+                    fileElement.classList.add("story-file");
+
+                    // Afficher selon le type de fichier
+                    if (story.fileType.startsWith("image")) {
+                        const img = document.createElement("img");
+                        img.src = story.file;
+                        img.style.maxWidth = "100%"; // Ajuster la taille de l'image
+                        fileElement.appendChild(img);
+                    } else if (story.fileType.startsWith("video")) {
+                        const video = document.createElement("video");
+                        video.src = story.file;
+                        video.controls = true;
+                        video.style.maxWidth = "100%"; // Ajuster la taille de la vidéo
+                        fileElement.appendChild(video);
+                    } else if (story.fileType.includes("pdf") || story.fileType.includes("doc")) {
+                        const link = document.createElement("a");
+                        link.href = story.file;
+                        link.textContent = "Télécharger le fichier";
+                        link.target = "_blank"; // Ouvrir dans un nouvel onglet
+                        fileElement.appendChild(link);
+                    }
+                    storyDiv.appendChild(fileElement);
+                }
+
+                storiesContainer.appendChild(storyDiv);
+            });
+        }
+
+        function deleteStory(index) {
+            const stories = JSON.parse(localStorage.getItem("conseils_stories")) || []; // Changer le nom pour les conseils
+            stories.splice(index, 1); // Supprimer l'histoire à l'index donné
+            localStorage.setItem("conseils_stories", JSON.stringify(stories)); // Sauvegarder les histoires mises à jour
+            loadStories(); // Recharger les histoires
+        }
+
+        // Charger les histoires lors du chargement de la page
+        window.onload = loadStories;
+    </script>
+
+</body>
+</html>
